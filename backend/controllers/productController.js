@@ -1,10 +1,20 @@
 const Product = require("../models/product");
+const Category = require("../models/category");
 
 // 📦 [GET] /api/products - Lấy tất cả sản phẩm (chưa bị xóa)
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isDeleted: false }).populate("categoryId");
-    res.status(200).json(products);
+    const products = await Product.find({ isDeleted: false });
+
+    // Thêm categoryName cho mỗi sản phẩm
+    const productsWithCategory = await Promise.all(
+      products.map(async (p) => {
+        const category = await Category.findOne({ categoryId: p.categoryId });
+        return { ...p._doc, categoryName: category ? category.name : null };
+      })
+    );
+
+    res.status(200).json(productsWithCategory);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi lấy danh sách sản phẩm", error: error.message });
   }
@@ -13,9 +23,11 @@ exports.getAllProducts = async (req, res) => {
 // 🔍 [GET] /api/products/:id - Lấy chi tiết sản phẩm theo productId
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findOne({ productId: req.params.id, isDeleted: false }).populate("categoryId");
+    const product = await Product.findOne({ productId: req.params.id, isDeleted: false });
     if (!product) return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
-    res.status(200).json(product);
+
+    const category = await Category.findOne({ categoryId: product.categoryId });
+    res.status(200).json({ ...product._doc, categoryName: category ? category.name : null });
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
   }

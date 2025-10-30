@@ -1,4 +1,5 @@
 const Category = require('../models/category');
+const Product = require('../models/product');
 
 // 🟢 Tạo mới category (Admin)
 exports.createCategory = async (req, res) => {
@@ -20,23 +21,34 @@ exports.createCategory = async (req, res) => {
   }
 };
 
-// 🔵 Lấy tất cả danh mục (không lấy danh mục đã xóa)
+// 🔵 Lấy tất cả danh mục (không lấy danh mục đã xóa) kèm products
 exports.getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find({ isDeleted: false });
-    res.json(categories);
+
+    // Thêm mảng products cho mỗi category
+    const categoriesWithProducts = await Promise.all(
+      categories.map(async (cat) => {
+        const products = await Product.find({ categoryId: cat.categoryId, isDeleted: false });
+        return { ...cat._doc, products };
+      })
+    );
+
+    res.json(categoriesWithProducts);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách danh mục', error });
   }
 };
 
-// 🟠 Lấy danh mục theo categoryId
+// 🟠 Lấy danh mục theo categoryId kèm products
 exports.getCategoryById = async (req, res) => {
   try {
-    const { id } = req.params; // id = categoryId bạn truyền vào URL
+    const { id } = req.params;
     const category = await Category.findOne({ categoryId: id, isDeleted: false });
     if (!category) return res.status(404).json({ message: 'Không tìm thấy danh mục' });
-    res.json(category);
+
+    const products = await Product.find({ categoryId: category.categoryId, isDeleted: false });
+    res.json({ ...category._doc, products });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi lấy danh mục', error });
   }
@@ -89,7 +101,10 @@ exports.restoreCategory = async (req, res) => {
     );
 
     if (!restored) return res.status(404).json({ message: 'Không tìm thấy danh mục để khôi phục' });
-    res.json({ message: 'Khôi phục danh mục thành công', category: restored });
+
+    // Lấy lại products sau khi khôi phục
+    const products = await Product.find({ categoryId: restored.categoryId, isDeleted: false });
+    res.json({ message: 'Khôi phục danh mục thành công', category: { ...restored._doc, products } });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi khi khôi phục danh mục', error });
   }

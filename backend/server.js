@@ -9,6 +9,7 @@ const cartRoutes = require("./routes/cartRoutes.js");
 const orderRoutes = require("./routes/orderRoutes.js");
 const reviewRoutes = require("./routes/reviewRoutes.js");
 const categoryRoutes = require("./routes/categoryRoutes.js");
+
 dotenv.config();
 
 const app = express();
@@ -26,7 +27,7 @@ connectDB();
 app.use("/api/auth", authRoutes);
 
 //upload
-app.use("/api/upload", uploadRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 //product
 app.use("/api/products", productRoutes);
@@ -42,6 +43,9 @@ app.use("/api/orders",orderRoutes);
 
 //review
 app.use("/api/reviews",reviewRoutes);
+
+// user
+
 
 //start server
 const PORT = process.env.PORT || 3000;

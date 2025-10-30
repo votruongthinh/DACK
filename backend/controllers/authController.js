@@ -43,9 +43,13 @@ exports.login = async (req, res) => {
   }
 };
 
-// 👥 Lấy danh sách user (Admin)
+// 👥 Lấy danh sách user (chỉ admin)
 exports.getAllUsers = async (req, res) => {
   try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Chỉ admin mới được xem danh sách user" });
+    }
+
     const users = await Auth.find({ isDeleted: false }).select("-password");
     res.status(200).json(users);
   } catch (error) {
@@ -53,33 +57,78 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// 🧾 Lấy thông tin user theo ID
+// 👤 Lấy thông tin user theo ID (user hoặc admin)
 exports.getUserById = async (req, res) => {
   try {
-    const user = await Auth.findOne({ _id: req.params.id, isDeleted: false }).select("-password");
+    const { id } = req.params;
+
+    // chỉ cho phép xem chính mình hoặc admin
+    if (req.user.role !== "admin" && req.user.id !== id) {
+      return res.status(403).json({ message: "Bạn không có quyền xem thông tin người khác" });
+    }
+
+    const user = await Auth.findOne({ _id: id, isDeleted: false }).select("-password");
     if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
+
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi lấy thông tin người dùng", error });
   }
 };
 
-// 🗑️ Xóa mềm user
+// ✏️ Cập nhật thông tin user (user hoặc admin, không được đổi role)
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, password } = req.body;
+
+    // chỉ chính chủ hoặc admin được sửa
+    if (req.user.role !== "admin" && req.user.id !== id) {
+      return res.status(403).json({ message: "Bạn không có quyền cập nhật người khác" });
+    }
+
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    const updatedUser = await Auth.findByIdAndUpdate(id, updateData, { new: true }).select("-password");
+    if (!updatedUser) return res.status(404).json({ message: "Không tìm thấy user để cập nhật" });
+
+    res.status(200).json({ message: "Cập nhật thông tin thành công", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi cập nhật user", error });
+  }
+};
+
+// 🗑️ Xóa mềm user (chỉ admin)
 exports.softDeleteUser = async (req, res) => {
   try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Chỉ admin mới được xóa user" });
+    }
+
     const user = await Auth.findByIdAndUpdate(req.params.id, { isDeleted: true }, { new: true });
     if (!user) return res.status(404).json({ message: "Không tìm thấy user để xóa" });
+
     res.status(200).json({ message: "Đã xóa mềm user", user });
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi xóa user", error });
   }
 };
 
-// 🔁 Khôi phục user
+// 🔁 Khôi phục user (chỉ admin)
 exports.restoreUser = async (req, res) => {
   try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Chỉ admin mới được khôi phục user" });
+    }
+
     const user = await Auth.findByIdAndUpdate(req.params.id, { isDeleted: false }, { new: true });
     if (!user) return res.status(404).json({ message: "Không tìm thấy user để khôi phục" });
+
     res.status(200).json({ message: "Khôi phục user thành công", user });
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi khôi phục user", error });

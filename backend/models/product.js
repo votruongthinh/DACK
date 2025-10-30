@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema({
   productId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   price: { type: Number, required: true },
-  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+  categoryId: { type: String, ref: "Category" }, //
   image: { type: String },
   isDeleted: { type: Boolean, default: false },
 });
