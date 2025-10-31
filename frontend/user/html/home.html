@@ -1,72 +1,32 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Page</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9fafb;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../css/home.css" />
+    <title>Trang chủ - Cửa hàng</title>
+    
+  </head>
 
-    header {
-      background: #1f2937;
-      color: white;
-      padding: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  <body>
+    <header>
+      <h1>Trang chủ cửa hàng</h1>
 
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-    }
+      <nav id="navMenu">
+        <a href="./login.html" id="loginLink">Đăng nhập</a>
+        <a href="./resgister.html" id="registerLink">Đăng ký</a>
+      </nav>
+    </header>
 
-    .logout-btn {
-      background: #dc2626;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+    <main>
+      <h2>Danh mục sản phẩm</h2>
+      <div id="categoryList" class="category-list"></div>
+      <h2>Đơn hàng của bạn</h2>
+      <div id="userOrders" class="order-list"></div>
+      <h2>Sản phẩm nổi bật</h2>
+      <div class="product-list" id="productList"></div>
+    </main>
 
-    .logout-btn:hover {
-      background: #b91c1c;
-    }
-
-    main {
-      margin-top: 40px;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Trang Người Dùng</h1>
-    <button class="logout-btn" id="logoutBtn">Đăng xuất</button>
-  </header>
-
-  <main>
-    <h2>Chào mừng bạn đến trang người dùng 👋</h2>
-    <p>Bạn có thể xem sản phẩm, đặt hàng, và xem lịch sử mua hàng tại đây.</p>
-  </main>
-
-  <script type="module">
-    import { checkUseraccess } from "/frontend/admin/js/authGuard.js";
-    checkUseraccess();
-
-    // 🟢 Xử lý nút đăng xuất
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      alert("Đã đăng xuất thành công!");
-      window.location.href = "../html/login.html"; // chuyển về trang login
-    });
-  </script>
-</body>
+    <script type="module" src="../js/home.js"></script>
+  </body>
 </html>

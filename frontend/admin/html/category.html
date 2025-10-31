@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../css/category.css" />
+  <title>Quản lý Category</title>
+  
+</head>
+<body>
+  <h1>Quản lý Category</h1>
+
+  <form id="categoryForm">
+    <input type="text" id="categoryId" placeholder="ID danh mục" required>
+    <input type="text" id="name" placeholder="Tên danh mục" required>
+    <input type="text" id="description" placeholder="Mô tả">
+    <button type="submit">Thêm Category</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tên</th>
+        <th>Mô tả</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody id="categoryTable"></tbody>
+  </table>
+
+  <script type="module" src="../js/category.js"></script>
+</body>
+</html>
