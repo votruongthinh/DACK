@@ -37,11 +37,21 @@ exports.login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.status(200).json({ message: "Đăng nhập thành công", token });
+    // 🟢 Gửi cả thông tin user về frontend
+    res.status(200).json({
+      message: "Đăng nhập thành công",
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi đăng nhập", error });
   }
 };
+
 
 // 👥 Lấy danh sách user (chỉ admin)
 exports.getAllUsers = async (req, res) => {
